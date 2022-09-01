@@ -10,26 +10,28 @@ import (
 
 // using gorilla mux library
 type Server struct {
-	Srv    *http.Server
-	Router *mux.Router
+	Srv     *http.Server
+	Router  *mux.Router
+	Handler *handler.Handler
 }
 
 func NewServer(router *mux.Router) *Server {
 	var Server Server
 	Server.Router = router
-	Server.Srv = &http.Server{
-		Handler: router,
-		Addr:    "127.0.0.1:3000",
-	}
+	Server.Handler = handler.NewHandler()
 	return &Server
 }
 
 func (server *Server) Listen() {
 	//set everything settable
-	server.Router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static")))
+	server.Router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	//set handlefunctions
-	server.Router.HandleFunc("/", handler.Home).Methods("POST")
+	server.Router.HandleFunc("/", server.Handler.Home).Methods("POST")
+	server.Router.HandleFunc("/signal", server.Handler.Signal).Methods("POST")
+
+	//Initialize necessaries
+	server.Handler.Agent.InitProcess()
 
 	log.Fatal(http.ListenAndServe(":3000", server.Router))
 }

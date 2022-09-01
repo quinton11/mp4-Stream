@@ -2,13 +2,42 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"mp4stream/internal/server"
 
-	"github.com/pion/webrtc/v3"
+	"github.com/gorilla/mux"
+	//"log"
+	//"os"
+	//ffmpeg "github.com/u2takey/ffmpeg-go"
+	//"log"
+	//"github.com/pion/webrtc/v3"
 )
 
 func main() {
-	fmt.Println("Hello Stream")
+	fmt.Println("FFMPEG")
+
+	//create router instance
+	router := mux.NewRouter()
+	server := server.NewServer(router)
+
+	server.Listen()
+	/* filename := "./assets/DC League of Super-Pets (2022).mp4"
+	file, err := os.Open(filename)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+	fmt.Println(file) */
+	/* filename := "./assets/DC League of Super-Pets (2022).mp4"
+	err := ffmpeg.Input(filename).Output("./assets/out.mp4", ffmpeg.KwArgs{"c:v": "libx265"}).Run()
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println(err)
+	}
+	if err == nil {
+		fmt.Println("No error")
+	} */
+	//fmt.Printf("%v", file)
+	/* fmt.Println("Hello Stream")
 
 	config := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
@@ -18,13 +47,18 @@ func main() {
 		},
 	}
 
+	//creating media engine, will stream .mp4 hence uses h264 codec
+	m := webrtc.MediaEngine{}
+	m.RegisterCodec(webrtc.RTPCodecParameters{}, webrtc.NewRTPCodecType("h246"))
+
+	//api := webrtc.NewAPI(webrtc.WithMediaEngine(&m))
 	//create peer connection
 	peerconnection, err := webrtc.NewPeerConnection(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 	//create webrtc signal description
-	localTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/H.264"}, "video", "pion1")
+	localTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "video/h264"}, "video", "pion1")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,7 +73,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Offer: %v", offer)
+	fmt.Printf("Offer: %v", offer) */
 	//create answer and establish local SDP and send response to
 	//remote peer
 	//gst.CreatePipeline("h264",[]*webrtc.TrackLocalStaticSample{localTrack}).Start()
@@ -47,4 +81,8 @@ func main() {
 
 /*
 Use pion mediastream to read in frames
+*/
+
+/*
+	Convert video to h264
 */

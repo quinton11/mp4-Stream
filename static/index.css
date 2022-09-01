@@ -1,0 +1,47 @@
+* {
+  margin: 0px;
+  padding: 0px;
+  height: 100%;
+}
+
+.body {
+  width: 100%;
+  height: 100%;
+}
+.main-container {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-container {
+  width: 60%;
+  height: 70%;
+  color: black;
+  background-color: white;
+  display: flex;
+  flex-flow: column;
+  justify-content: start;
+  align-items: center;
+  align: center;
+}
+
+.video-header {
+  color: black;
+  font-weight: bold;
+  text-align: center;
+  width:100%;
+  height:10%;
+  padding: 4px;
+}
+
+#video-pion {
+  background-color: grey;
+  align: center;
+  display: flex;
+  width:100%;
+}

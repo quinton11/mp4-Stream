@@ -3,6 +3,11 @@ console.log("Hello World, Working");
 //PeerConnection and remotestream variables
 let peerconnection;
 let remotestream;
+let ws = new WebSocket("ws://127.0.0.1:3000");
+
+ws.onopen = () => {
+  alert("Socket Connected!");
+};
 
 //STUN servers for configuring our peer connection
 const options = {
@@ -13,6 +18,13 @@ const options = {
   ],
   iceCandidatePoolSize: 10,
 };
+/* 
+  Use websockets to send updated local descriptions and
+  remote descriptions
+
+  on server side, local description is updated after ICE candidates are gathered
+
+*/
 
 //Creating a  PeerConnection
 peerconnection = new RTCPeerConnection(options);
@@ -23,11 +35,11 @@ remotestream = new MediaStream();
 //peerconnection event handlers
 peerconnection.onicecandidate = (event) => {
   if (event.candidate) {
-    console.log(event.candidate);
-    peerconnection.addIceCandidate(event.candidate)
+    //console.log(event.candidate);
+    //peerconnection.addIceCandidate(event.candidate);
+    ws.send(peerconnection.LocalDescription);
   }
 };
-
 
 peerconnection.iceConnectionState = (event) => {
   console.log("Ice connection state" + peerconnection.iceConnectionState);
@@ -44,8 +56,12 @@ peerconnection.ontrack = (event) => {
 //first we create transceivers, for this case we use one video media
 peerconnection.addTransceiver("video", { direction: "sendrecv" });
 
+ws.onmessage = async (event) => {
+  await peerconnection.setRemoteDescription(event.data);
+};
+
 //offer
-peerconnection.createOffer({iceRestart:"true"}).then(async (offer) => {
+peerconnection.createOffer({ iceRestart: "true" }).then(async (offer) => {
   await peerconnection.setLocalDescription(offer);
 
   //store offer in textarea element

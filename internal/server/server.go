@@ -27,7 +27,7 @@ func (server *Server) Listen() {
 	server.Router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	//set handlefunctions
-	server.Router.HandleFunc("/", server.Handler.Home).Methods("POST")
+	server.Router.HandleFunc("/", server.Handler.Home).Methods("GET")
 	server.Router.HandleFunc("/signal", server.Handler.Signal).Methods("POST")
 
 	//Initialize necessaries

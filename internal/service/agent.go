@@ -10,6 +10,7 @@ import (
 
 	//ffmpeg "github.com/u2takey/ffmpeg-go"
 
+	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 )
@@ -20,6 +21,7 @@ import (
 type Agent struct {
 	Pconnect *webrtc.PeerConnection
 	Track    *webrtc.TrackLocalStaticSample
+	Ws       *websocket.Conn
 }
 
 type Offer struct {
@@ -65,7 +67,11 @@ func (agent *Agent) InitProcess() (*webrtc.TrackLocalStaticSample, error) {
 	agent.Pconnect.OnICECandidate(func(candidate *webrtc.ICECandidate) {
 		fmt.Printf("Ice Candidate %v \n", candidate)
 		if candidate != nil {
-			agent.Pconnect.AddICECandidate(candidate.ToJSON())
+			//agent.Pconnect.AddICECandidate(candidate.ToJSON())
+			//On every Ice candidate received, send the updated
+			//local description
+			agent.Ws.WriteJSON(agent.Pconnect.CurrentLocalDescription())
+			//go agent.Ws.ReadJSON(agent.Pconnect.RemoteDescription())
 
 		}
 	})

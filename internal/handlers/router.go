@@ -7,11 +7,18 @@ import (
 	"mp4stream/internal/service"
 	"net/http"
 
+	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
 )
 
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
 type Handler struct {
 	Agent *service.Agent
+	Ws    *websocket.Conn
 }
 
 func NewHandler() *Handler {
@@ -23,6 +30,12 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
+	//create websocket
+	conn, err := upgrader.Upgrade(w, r, nil)
+	h.Agent.Ws = conn
+	if err != nil {
+		panic(err)
+	}
 	//w.Header().Set("Content-type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	//http.ServeFile(w, r, http.FileServer(http.Dir("./static")))

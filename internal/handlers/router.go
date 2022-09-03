@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"mp4stream/internal/service"
 	"net/http"
+
+	"github.com/pion/webrtc/v3"
 )
 
 type Handler struct {
@@ -27,10 +31,44 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
-	//vars := mux.Vars(r)
-	//b := make([]byte, 100)
-	//fmt.Println(r.Body.Read(b))
+	//Read in stream of json data and store in placeholder
+	JSON := make(map[string]interface{})
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	d.Decode(&JSON)
+	//print out data
+	fmt.Println(JSON)
+	b, err := json.Marshal(JSON)
+	if err != nil {
+		fmt.Println("Unmarshalling error")
+		fmt.Println(err)
+	}
+
+	var offer webrtc.SessionDescription
+	json.Unmarshal(b, &offer)
+
+	//Set remote SDP description
+	h.Agent.Pconnect.SetRemoteDescription(offer)
+	//Create Answer to Offer
+	answer, err := h.Agent.Pconnect.CreateAnswer(nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//Set answer as local SDP description
+	h.Agent.Pconnect.SetLocalDescription(answer)
+	fmt.Println(answer)
+
+	ans, err := json.Marshal(answer)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//starting stream
+	go func() {
+		h.Agent.StreamTrack()
+	}()
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Signalling, remote answer..."))
+	w.Write(ans)
 	//fmt.Fprintf(w, "Signalling, remote answer...")
 }

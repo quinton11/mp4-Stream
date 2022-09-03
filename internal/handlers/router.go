@@ -34,7 +34,7 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	//Read in stream of json data and store in placeholder
 	JSON := make(map[string]interface{})
 	d := json.NewDecoder(r.Body)
-	d.DisallowUnknownFields()
+	//d.DisallowUnknownFields()
 	d.Decode(&JSON)
 	//print out data
 	fmt.Println(JSON)
@@ -54,6 +54,8 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	//gather ICE candidates
+	gcomplete := webrtc.GatheringCompletePromise(h.Agent.Pconnect)
 	//Set answer as local SDP description
 	h.Agent.Pconnect.SetLocalDescription(answer)
 	fmt.Println(answer)
@@ -65,7 +67,8 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 
 	//starting stream
 	go func() {
-		h.Agent.StreamTrack()
+		<-gcomplete
+		h.Agent.StreamTrack() //push ffmpeg buffers unto localtrack
 	}()
 
 	w.WriteHeader(http.StatusOK)

@@ -1,5 +1,10 @@
+console.log("Init");
 console.log("Hello World, Working");
+//PeerConnection and remotestream variables
+let peerconnection;
+let remotestream;
 
+//STUN servers for configuring our peer connection
 const options = {
   iceServers: [
     {
@@ -9,51 +14,73 @@ const options = {
   iceCandidatePoolSize: 10,
 };
 
-async function Init() {
-  //Create peerconnection
-  const peerconnection = new RTCPeerConnection(options);
+//Creating a  PeerConnection
+peerconnection = new RTCPeerConnection(options);
 
-  //create remote stream
-  const remotestream = new MediaStream();
-  document.getElementById("video-pion").srcObject = remotestream;
+//our remotestream
+remotestream = new MediaStream();
 
-  peerconnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      const JSON = {
-        url: event.url,
-        type: event.type,
-        candidate: event.candidate,
-        target: event.target,
-      };
-      console.log(JSON);
-    }
-  };
+//peerconnection event handlers
+peerconnection.onicecandidate = (event) => {
+  if (event.candidate) {
+    console.log(event.candidate);
+    peerconnection.addIceCandidate(event.candidate)
+  }
+};
 
-  //Add event listener for track
-  peerconnection.ontrack = async (event) => {
-    event.streams[0].getTracks().forEach((track) => {
-      remotestream.addTrack(track);
-    });
-  };
-  document.getElementById("button-sdp").addEventListener("click", async () => {
-    const offer = await peerconnection.createOffer();
 
-    peerconnection.setLocalDescription(offer);
-    document.getElementById("sdp-1").value = JSON.stringify(offer);
-    await postOffer("signal", offer);
-    //When offer is created, send request to server and receive answer,
-    //setremotedescription with answer and append it to textarea value
-    //that should be all for signalling
+peerconnection.iceConnectionState = (event) => {
+  console.log("Ice connection state" + peerconnection.iceConnectionState);
+};
+
+//listening for tracks
+peerconnection.ontrack = (event) => {
+  event.streams[0].getTracks().forEach((track) => {
+    remotestream.addTrack(track);
   });
-}
+};
 
-async function postOffer(endpoint, offer) {
+//*creating offer
+//first we create transceivers, for this case we use one video media
+peerconnection.addTransceiver("video", { direction: "sendrecv" });
+
+//offer
+peerconnection.createOffer({iceRestart:"true"}).then(async (offer) => {
+  await peerconnection.setLocalDescription(offer);
+
+  //store offer in textarea element
+  document.getElementById("sdp-1").value = JSON.stringify(offer);
+});
+
+//an event to get offer from textarea and send it as a request to server
+//response is received and used to set remote description
+async function sendOffer() {
+  let obj = document.getElementById("sdp-1");
+  //read value from sdp-1 element
+  let offr = JSON.parse(obj.value);
+
+  //send offer to server
+  let answer = await postOffer(offr);
+
+  //setting remote description
+  await peerconnection.setRemoteDescription(answer);
+  //append answer to document element for viewing
+
+  obj.value += obj.value + "\\n Answer: \\n" + JSON.stringify(answer);
+}
+document.getElementById("button-sdp").addEventListener("click", sendOffer);
+
+async function postOffer(offer) {
   //Server url
+
   const url = "http://127.0.0.1:3000/signal";
   //const request = new Request()
-  let response = await fetch(url, { method: "POST", body: offer });
-  let data = await response.text()
-  console.log(data);
+  let response = await fetch(url, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify(offer),
+  });
+  let data = await response.json();
+  //console.log(data);
+  return data;
 }
-
-Init();

@@ -36,6 +36,16 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+
+	//continuosly read in messages
+	go func() {
+		for {
+			err := h.Agent.Ws.ReadJSON(h.Agent.Pconnect.RemoteDescription())
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}()
 	//w.Header().Set("Content-type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	//http.ServeFile(w, r, http.FileServer(http.Dir("./static")))
@@ -68,7 +78,7 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 	//gather ICE candidates
-	gcomplete := webrtc.GatheringCompletePromise(h.Agent.Pconnect)
+	//gcomplete := webrtc.GatheringCompletePromise(h.Agent.Pconnect)
 	//Set answer as local SDP description
 	h.Agent.Pconnect.SetLocalDescription(answer)
 	fmt.Println(answer)
@@ -80,7 +90,7 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 
 	//starting stream
 	go func() {
-		<-gcomplete
+		//<-gcomplete
 		h.Agent.StreamTrack() //push ffmpeg buffers unto localtrack
 	}()
 

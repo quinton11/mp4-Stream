@@ -18,13 +18,6 @@ const options = {
   ],
   iceCandidatePoolSize: 10,
 };
-/* 
-  Use websockets to send updated local descriptions and
-  remote descriptions
-
-  on server side, local description is updated after ICE candidates are gathered
-
-*/
 
 //Creating a  PeerConnection
 peerconnection = new RTCPeerConnection(options);
@@ -47,11 +40,21 @@ peerconnection.iceConnectionState = (event) => {
 
 //listening for tracks
 peerconnection.ontrack = (event) => {
-  event.streams[0].getTracks().forEach((track) => {
+  /* event.streams[0].getTracks().forEach((track) => {
     remotestream.addTrack(track);
-  });
+  }); */
+  remotestream.addTrack(event.track);
+  console.log("Ontrack event!");
+  console.log(event.track)
+  console.log(event.receiver)
+  console.log(event.transceiver)
+
+  //console.log(event.streams[0]);
+  document.getElementById("video-pion").srcObject = remotestream;
+  return false;
 };
 
+//document.getElementById("video-pion").srcObject = remotestream;
 //*creating offer
 //first we create transceivers, for this case we use one video media
 peerconnection.addTransceiver("video", { direction: "sendrecv" });
@@ -82,7 +85,7 @@ async function sendOffer() {
   await peerconnection.setRemoteDescription(answer);
   //append answer to document element for viewing
 
-  obj.value += obj.value + "\\n Answer: \\n" + JSON.stringify(answer);
+  //obj.value += obj.value + "\\n Answer: \\n" + JSON.stringify(answer);
 }
 document.getElementById("button-sdp").addEventListener("click", sendOffer);
 

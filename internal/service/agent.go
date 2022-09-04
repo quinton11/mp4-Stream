@@ -89,6 +89,7 @@ func (agent *Agent) CreateOffer() (*webrtc.SessionDescription, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &offer, nil
 }
 
@@ -165,8 +166,9 @@ func (agent *Agent) StreamTrack() {
 		}
 
 		//write to samplet
-		err = agent.Track.WriteSample(media.Sample{Data: buf[:n]})
-		if err != nil {
+		//fmt.Println(buf)
+		errtwr := agent.Track.WriteSample(media.Sample{Data: buf[:n]})
+		if errtwr != nil {
 			fmt.Println(err)
 			panic(err)
 		}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"mp4stream/internal/service"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
@@ -15,6 +16,7 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
+var newPc = true
 
 type Handler struct {
 	Agent *service.Agent
@@ -29,6 +31,25 @@ func NewHandler() *Handler {
 	return &Handler{Agent: agent}
 }
 
+func (h *Handler) GetCmd(input string) string {
+	inputArr := strings.Split(input, " ")
+	return inputArr[0]
+}
+
+func (h *Handler) Parse(input []byte) (map[string]interface{}, bool) {
+	JSON := make(map[string]interface{})
+	err := json.Unmarshal(input, &JSON)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, okOffer := JSON["type"]
+	if okOffer {
+		return JSON, okOffer
+	}
+	return JSON, false
+}
+
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	//create websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -40,10 +61,66 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	//continuosly read in messages
 	go func() {
 		for {
-			err := h.Agent.Ws.ReadJSON(h.Agent.Pconnect.RemoteDescription())
+
+			_, mes, err := h.Agent.Ws.ReadMessage()
 			if err != nil {
 				fmt.Println(err)
 			}
+			//cmd := h.GetCmd(string(mes))
+			//fmt.Println(cmd)
+			if string(mes) != "undefined" {
+				offer := webrtc.SessionDescription{}
+				remoteCandidate := webrtc.ICECandidate{}
+				res, isOffer := h.Parse(mes)
+				//fmt.Println(res)
+				//If message is offer
+				if isOffer {
+					json.Unmarshal(mes, &offer)
+					fmt.Println(offer)
+					if h.Agent.Pconnect.CurrentRemoteDescription() == &offer {
+						fmt.Println("Same offer")
+					}
+					//set remote description with offer
+					if errR := h.Agent.Pconnect.SetRemoteDescription(offer); errR != nil {
+						fmt.Println("Remote Description")
+						panic(errR)
+					}
+					//create answer
+					answer, err := h.Agent.Pconnect.CreateAnswer(nil)
+					if err != nil {
+						fmt.Println("Creating Answer")
+						panic(err)
+					}
+					//set local description with answer
+					if errA := h.Agent.Pconnect.SetLocalDescription(answer); errA != nil {
+						fmt.Println("Local Description")
+						panic(errA)
+					}
+
+					//send response to client
+
+					fmt.Println("Writing")
+					if errWr := h.Agent.Ws.WriteJSON(answer); errWr != nil {
+						panic(errWr)
+					}
+
+					if newPc {
+						fmt.Println("Peer connection registered")
+						newPc = !newPc
+						fmt.Printf("\nSwitching states: %v", newPc)
+					}
+				}
+
+				//If message is ICE candidate
+				if !isOffer {
+					fmt.Println(res)
+					json.Unmarshal(mes, &remoteCandidate)
+					fmt.Println(remoteCandidate)
+					fmt.Println(res)
+				}
+
+			}
+
 		}
 	}()
 	//w.Header().Set("Content-type", "text/html")
@@ -88,11 +165,12 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	//starting stream
+	/* //starting stream
 	go func() {
 		//<-gcomplete
-		h.Agent.StreamTrack() //push ffmpeg buffers unto localtrack
-	}()
+		//h.Agent.StreamTrack() //push ffmpeg buffers unto localtrack
+		h.Agent.StreamRTP() //push ffmpeg stream unto RTP localtrack
+	}() */
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(ans)

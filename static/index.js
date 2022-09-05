@@ -27,48 +27,75 @@ remotestream = new MediaStream();
 
 //peerconnection event handlers
 peerconnection.onicecandidate = (event) => {
-  if (event.candidate) {
-    //console.log(event.candidate);
-    //peerconnection.addIceCandidate(event.candidate);
-    ws.send(peerconnection.LocalDescription);
-  }
-};
+  console.log("Ice candidate: \\n" + JSON.stringify(event.candidate));
+  if (event.candidate === null) {
+    console.log("ICE gathered!");
+    /* console.log(
+      "After Ice gathering: " + JSON.stringify(peerconnection.localDescription)
+    ); */
+    document.getElementById("sdp-1").value = JSON.stringify(
+      peerconnection.localDescription
+    );
 
-peerconnection.iceConnectionState = (event) => {
-  console.log("Ice connection state" + peerconnection.iceConnectionState);
+    ws.send(JSON.stringify(peerconnection.localDescription));
+    //ws.send(peerconnection.LocalDescription);
+  }
 };
 
 //listening for tracks
 peerconnection.ontrack = (event) => {
-  /* event.streams[0].getTracks().forEach((track) => {
-    remotestream.addTrack(track);
-  }); */
-  remotestream.addTrack(event.track);
+  //remotestream.addTrack(event.track);
   console.log("Ontrack event!");
-  console.log(event.track)
-  console.log(event.receiver)
-  console.log(event.transceiver)
+  //console.log(event.track);
+  //console.log(event.receiver);
+  //console.log(event.transceiver);
+  //console.log("Ice connection state" + peerconnection.iceConnectionState);
+  var elem = document.createElement(event.track.kind);
+  elem.srcObject = event.streams[0];
+  elem.autoplay = true;
+  elem.controls = true;
 
   //console.log(event.streams[0]);
-  document.getElementById("video-pion").srcObject = remotestream;
+  document.getElementById("video-pion").appendChild(elem);
   return false;
 };
 
-//document.getElementById("video-pion").srcObject = remotestream;
 //*creating offer
 //first we create transceivers, for this case we use one video media
-peerconnection.addTransceiver("video", { direction: "sendrecv" });
+peerconnection.addTransceiver("video", { direction: "recvonly" });
 
 ws.onmessage = async (event) => {
-  await peerconnection.setRemoteDescription(event.data);
+  console.log(event.data);
+  //check if offer
+  let ifoff = JSON.parse(event.data);
+
+  console.log("New remote description");
+  console.log("Candidate from Peer " + event.data);
+  let remotedesc = peerconnection.remoteDescription;
+  if (ifoff["type"] === "answer" && ifoff !== remotedesc) {
+    console.log("Offer");
+    peerconnection.setRemoteDescription(JSON.parse(event.data));
+  }
+  //await peerconnection.setRemoteDescription(JSON.parse(event.data));
+  console.log("Received Answer from Peer: " + event.data);
+  console.log("Ice connection state " + peerconnection.iceConnectionState);
+
+  //ws.send(JSON.stringify(peerconnection.localDescription));
 };
+
+setTimeout(()=>{
+  console.log(peerconnection.iceConnectionState)
+},10000)
 
 //offer
 peerconnection.createOffer({ iceRestart: "true" }).then(async (offer) => {
-  await peerconnection.setLocalDescription(offer);
+  setTimeout(async () => {
+    //ws.send(JSON.stringify(offer));
+    await peerconnection.setLocalDescription(offer);
 
-  //store offer in textarea element
-  document.getElementById("sdp-1").value = JSON.stringify(offer);
+    //store offer in textarea element
+    document.getElementById("sdp-1").value = JSON.stringify(offer);
+  }, 3000);
 });
 
 //an event to get offer from textarea and send it as a request to server

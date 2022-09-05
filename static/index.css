@@ -42,7 +42,7 @@
 #video-pion {
   background-color: grey;
   align: center;
-  display: flex;
+  height:80%;
   width: 100%;
 }
 

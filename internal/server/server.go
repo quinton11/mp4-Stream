@@ -29,6 +29,7 @@ func (server *Server) Listen() {
 	//set handlefunctions
 	server.Router.HandleFunc("/", server.Handler.Home).Methods("GET")
 	server.Router.HandleFunc("/signal", server.Handler.Signal).Methods("POST")
+	server.Router.HandleFunc("/stream", server.Handler.Stream).Methods("POST")
 
 	//Initialize necessaries
 	server.Handler.Agent.InitProcess()

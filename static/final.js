@@ -90,3 +90,18 @@ peerconnection.createOffer({ iceRestart: true }).then((offer) => {
     document.getElementById("sdp-1").value = JSON.stringify(offer);
   }, 3000);
 });
+
+let triggerStream = async () => {
+  const url = "http://127.0.0.1:3000/stream";
+
+  let response = await fetch(url, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: JSON.stringify({ stream: "start" }),
+  });
+  let data = await response.json();
+};
+
+//Add event listener for button
+//when clicked, start stream
+document.getElementById("button-sdp").addEventListener("click", triggerStream);

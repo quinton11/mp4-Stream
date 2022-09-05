@@ -176,3 +176,16 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	w.Write(ans)
 	//fmt.Fprintf(w, "Signalling, remote answer...")
 }
+
+func (h *Handler) Stream(w http.ResponseWriter, r *http.Request) {
+	go func() {
+		h.Agent.StreamRTP()
+	}()
+	JSON := make(map[string]interface{})
+	JSON["streaming"] = "true"
+	resp, err := json.Marshal(JSON)
+	if err != nil {
+		panic(err)
+	}
+	w.Write(resp)
+}

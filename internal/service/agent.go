@@ -100,7 +100,7 @@ func (agent *Agent) SetTrack(typ string) error {
 func (agent *Agent) InitProcess() error {
 	//this creates local track
 	//for static sample use "sample"
-	agent.SetTrack("sample")
+	agent.SetTrack("")
 
 	//create onice change listener
 	agent.Pconnect.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {

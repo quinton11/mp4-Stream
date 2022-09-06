@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// using gorilla mux library
 type Server struct {
 	Srv     *http.Server
 	Router  *mux.Router
@@ -23,7 +22,7 @@ func NewServer(router *mux.Router) *Server {
 }
 
 func (server *Server) Listen() {
-	//set everything settable
+	//Serve statics
 	server.Router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	//set handlefunctions
@@ -31,7 +30,7 @@ func (server *Server) Listen() {
 	server.Router.HandleFunc("/signal", server.Handler.Signal).Methods("POST")
 	server.Router.HandleFunc("/stream", server.Handler.Stream).Methods("POST")
 
-	//Initialize necessaries
+	//Initialize webRtc Agent
 	server.Handler.Agent.InitProcess()
 
 	log.Fatal(http.ListenAndServe(":3000", server.Router))

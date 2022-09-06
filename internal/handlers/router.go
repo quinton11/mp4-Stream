@@ -6,7 +6,6 @@ import (
 	"log"
 	"mp4stream/internal/service"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/pion/webrtc/v3"
@@ -29,11 +28,6 @@ func NewHandler() *Handler {
 		log.Fatal(err)
 	}
 	return &Handler{Agent: agent}
-}
-
-func (h *Handler) GetCmd(input string) string {
-	inputArr := strings.Split(input, " ")
-	return inputArr[0]
 }
 
 func (h *Handler) Parse(input []byte) (map[string]interface{}, bool) {
@@ -66,13 +60,12 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			//cmd := h.GetCmd(string(mes))
-			//fmt.Println(cmd)
+
 			if string(mes) != "undefined" {
 				offer := webrtc.SessionDescription{}
 				remoteCandidate := webrtc.ICECandidate{}
 				res, isOffer := h.Parse(mes)
-				//fmt.Println(res)
+
 				//If message is offer
 				if isOffer {
 					json.Unmarshal(mes, &offer)
@@ -123,13 +116,14 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 
 		}
 	}()
-	//w.Header().Set("Content-type", "text/html")
+
 	w.WriteHeader(http.StatusOK)
-	//http.ServeFile(w, r, http.FileServer(http.Dir("./static")))
 
 	w.Write([]byte("Welcome👋🏾"))
 }
 
+// Initial signalling route
+// Using http endpoint
 func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	//Read in stream of json data and store in placeholder
 	JSON := make(map[string]interface{})
@@ -164,13 +158,6 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	/* //starting stream
-	go func() {
-		//<-gcomplete
-		//h.Agent.StreamTrack() //push ffmpeg buffers unto localtrack
-		h.Agent.StreamRTP() //push ffmpeg stream unto RTP localtrack
-	}() */
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(ans)

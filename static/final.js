@@ -25,6 +25,7 @@ peerconnection.onicecandidate = (event) => {
   //Candidates trickle in
   //When all candidates have been gathered
   //a final null candidate is passed
+  console.log(event.candidate)
   if (event.candidate === null) {
     console.log("ICE gathered!");
 

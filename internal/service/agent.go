@@ -249,7 +249,7 @@ func (agent *Agent) StreamRTP() {
 		ffmpeg.KwArgs{"acodec": "copy", "f": "rtp"}) */
 		errFF := inputVid.
 			Output("rtp://127.0.0.1:5004?pkt_size=1200",
-				ffmpeg.KwArgs{"c:v": "libx264", "f": "rtp", "g": "10", "tune": "zerolatency", "r": "24", "pix_fmt": "yuv420p", "filter:v": "setpts=PTS"}).
+				ffmpeg.KwArgs{"c:v": "libx264", "f": "rtp", "g": "10", "tune": "zerolatency", "r": "24", "pix_fmt": "yuv420p", "filter:v": "setpts=2.0*PTS"}).
 			WithOutput(buf, os.Stdout).
 			Run()
 		if errFF != nil {

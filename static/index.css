@@ -42,8 +42,16 @@
 #video-pion {
   background-color: grey;
   align: center;
+  align-items:center;
+  justify-content: center;
   height:80%;
   width: 100%;
+}
+
+.buttons-container{
+  display:flex;
+  flex-flow: row;
+  justify-content: center
 }
 
 .sdp {
@@ -58,4 +66,10 @@
   height: 60px;
   color: white;
   background-color: blue;
+}
+#button-sdpO {
+  width: 40px;
+  height: 60px;
+  color: white;
+  background-color: red;
 }

@@ -33,16 +33,9 @@ peerconnection.onicecandidate = (event) => {
     document.getElementById("sdp-1").value = JSON.stringify(
       peerconnection.localDescription
     );
-
-    //when all ice candidates have been gathered then send offer
-    ws.send(JSON.stringify(peerconnection.localDescription));
   }
 };
 
-/* 
-  Write create offer to be triggered by user button
-  click
-*/
 
 //Event handler for a remote track
 peerconnection.ontrack = (event) => {
@@ -80,7 +73,7 @@ ws.onmessage = (event) => {
   //in addition
   if (answer["type"] === "answer") {
     console.log(answer);
-    peerconnection.setRemoteDescription(answer);
+    //peerconnection.setRemoteDescription(answer);
   } else {
     //ICE candidates
     console.log("Peer ICE candidates: " + JSON.stringify(answer));
@@ -88,22 +81,13 @@ ws.onmessage = (event) => {
   }
 };
 
-//A setTimeout to display connection state after a while
-let delay = 10000;
-setTimeout(() => {
-  console.log(peerconnection.iceConnectionState);
-}, delay);
-
 //creating Starting offer
 //stored in textarea
 peerconnection.createOffer({ iceRestart: true }).then((offer) => {
-  //wait for websocket to go live
-  setTimeout(async () => {
-    await peerconnection.setLocalDescription(offer);
+  peerconnection.setLocalDescription(offer);
 
-    //store offer in textarea
-    document.getElementById("sdp-1").value = JSON.stringify(offer);
-  }, 5000);
+  //store offer in textarea
+  document.getElementById("sdp-1").value = JSON.stringify(offer);
 });
 
 let triggerStream = async () => {
@@ -117,6 +101,20 @@ let triggerStream = async () => {
   let data = await response.json();
 };
 
+let submitOffer = async () => {
+  const url = "http://localhost:3000/signal";
+  const offr = document.getElementById("sdp-1").value;
+
+  let response = await fetch(url, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    body: offr,
+  });
+  let data = await response.json();
+  peerconnection.setRemoteDescription(data);
+};
+
 //Add event listener for button
 //when clicked, start stream
 document.getElementById("button-sdp").addEventListener("click", triggerStream);
+document.getElementById("button-sdpO").addEventListener("click", submitOffer);

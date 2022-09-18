@@ -153,7 +153,8 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	//Set answer as local SDP description
 	h.Agent.Pconnect.SetLocalDescription(answer)
 	fmt.Println(answer)
-
+	<-h.Agent.Icegathered
+	answer = *h.Agent.Pconnect.LocalDescription()
 	ans, err := json.Marshal(answer)
 	if err != nil {
 		fmt.Println(err)

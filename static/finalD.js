@@ -77,7 +77,7 @@ ws.onmessage = (event) => {
   } else {
     //ICE candidates
     console.log("Peer ICE candidates: " + JSON.stringify(answer));
-    peerconnection.addIceCandidate(answer);
+    //peerconnection.addIceCandidate(answer);
   }
 };
 

@@ -19,10 +19,11 @@ import (
 // for creation of offer and answer
 // for adding web tracks
 type Agent struct {
-	Pconnect *webrtc.PeerConnection
-	Track    *webrtc.TrackLocalStaticSample
-	RTPTrack *webrtc.TrackLocalStaticRTP
-	Ws       *websocket.Conn
+	Pconnect    *webrtc.PeerConnection
+	Track       *webrtc.TrackLocalStaticSample
+	RTPTrack    *webrtc.TrackLocalStaticRTP
+	Ws          *websocket.Conn
+	Icegathered chan bool
 }
 
 //Create new PeerConnection  Agent
@@ -40,8 +41,9 @@ func NewAgent() (*Agent, error) {
 	if err != nil {
 		return nil, err
 	}
+	ice := make(chan bool)
 
-	return &Agent{Pconnect: peerconnection}, nil
+	return &Agent{Pconnect: peerconnection, Icegathered: ice}, nil
 }
 
 func (agent *Agent) SetTrack(typ string) error {
@@ -101,6 +103,10 @@ func (agent *Agent) InitProcess() error {
 		fmt.Printf("\n New Connection state %v \n", connectionState)
 	})
 
+	agent.Pconnect.OnICEGatheringStateChange(func(icegstate webrtc.ICEGathererState) {
+		fmt.Println(icegstate.String())
+	})
+
 	agent.Pconnect.OnICECandidate(func(candidate *webrtc.ICECandidate) {
 		fmt.Printf("Ice Candidate %v \n", candidate)
 		if candidate != nil {
@@ -117,6 +123,7 @@ func (agent *Agent) InitProcess() error {
 		if candidate == nil {
 			fmt.Printf("Null candidate: /n %v", candidate)
 			//agent.Ws.WriteJSON(agent.Pconnect.CurrentLocalDescription())
+			agent.Icegathered <- true
 		}
 	})
 

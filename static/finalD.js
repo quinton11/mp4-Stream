@@ -2,6 +2,7 @@
 let ws = new WebSocket("ws://localhost:3000"); //connection url
 
 let peerconnection;
+let remotestream = new MediaStream();
 //A check if websocket is open
 ws.onopen = () => {
   alert("Socket Connected!");
@@ -36,20 +37,29 @@ peerconnection.onicecandidate = (event) => {
   }
 };
 
-
 //Event handler for a remote track
 peerconnection.ontrack = (event) => {
   console.log("Ontrack event");
+  //RTC Media Stream Event
+  console.log(event);
+  //Media Stream Object
+  console.log(event.streams[0]);
+  //MediaStream Track
+  console.log(event.track);
+  //remotestream.addTrack(event.track);
+  remotestream = event.streams[0]
+
+  document.getElementById("videos-main").srcObject = remotestream
 
   //element to hold video
-  var elem = document.createElement(event.track.kind);
+  /* var elem = document.createElement(event.track.kind);
   elem.srcObject = event.streams[0];
   elem.autoplay = true;
   elem.controls = true;
 
   var par = document.getElementById("video-pion");
 
-  par.appendChild(elem);
+  par.appendChild(elem); */
 
   return false;
 };

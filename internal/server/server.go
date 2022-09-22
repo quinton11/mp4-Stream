@@ -29,6 +29,7 @@ func (server *Server) Listen() {
 	server.Router.HandleFunc("/", server.Handler.Home).Methods("GET")
 	server.Router.HandleFunc("/signal", server.Handler.Signal).Methods("POST")
 	server.Router.HandleFunc("/stream", server.Handler.Stream).Methods("POST")
+	server.Router.HandleFunc("/streamupdate", server.Handler.StreamUp).Methods("POST")
 
 	//Initialize webRtc Agent
 	server.Handler.Agent.InitProcess()

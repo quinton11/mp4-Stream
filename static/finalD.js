@@ -101,7 +101,7 @@ peerconnection.createOffer({ iceRestart: true }).then((offer) => {
 });
 
 let triggerStream = async () => {
-  const url = "http://localhost:3000/stream";
+  const url = "http://localhost:3000/streamupdate";
 
   let response = await fetch(url, {
     method: "POST",

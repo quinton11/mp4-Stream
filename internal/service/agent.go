@@ -24,6 +24,7 @@ type Agent struct {
 	RTPTrack    *webrtc.TrackLocalStaticRTP
 	Ws          *websocket.Conn
 	Icegathered chan bool
+	Strm        *Stream
 }
 
 //Create new PeerConnection  Agent
@@ -279,4 +280,27 @@ func (agent *Agent) StreamRTP() {
 		}
 	}
 
+}
+
+func (agent *Agent) StartStream() {
+	agent.Strm = NewStream()
+
+	moviefile := FileCheck()
+	go func() {
+		err := agent.Strm.Play(moviefile, agent.RTPTrack)
+		if err != nil {
+			fmt.Println("Error in Playing")
+			fmt.Println(err)
+		}
+	}()
+	fmt.Println("Started")
+}
+
+func (agent *Agent) StopStream() error {
+	err := agent.Strm.Stop()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
 }

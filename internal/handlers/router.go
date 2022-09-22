@@ -177,3 +177,29 @@ func (h *Handler) Stream(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(resp)
 }
+
+func (h *Handler) StreamUp(w http.ResponseWriter, r *http.Request) {
+	h.Agent.StartStream()
+	JSON := make(map[string]interface{})
+	JSON["streaming"] = "true"
+	resp, err := json.Marshal(JSON)
+	if err != nil {
+		panic(err)
+	}
+	w.Write(resp)
+
+}
+
+func (h *Handler) StreamDown(w http.ResponseWriter, r *http.Request) {
+	err := h.Agent.StopStream()
+	JSON := make(map[string]interface{})
+	JSON["stopped"] = "true"
+	if err != nil {
+		JSON["stopped"] = err.Error()
+	}
+	resp, err := json.Marshal(JSON)
+	if err != nil {
+		JSON["error"] = err.Error()
+	}
+	w.Write(resp)
+}

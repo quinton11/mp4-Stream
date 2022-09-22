@@ -4,23 +4,25 @@
 <head>
     <title>MP4 Stream</title>
     <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
     <div class="main-container">
-        <div class="video-container">
-            <header class="video-header">Video-container</header>
-            <div id="video-pion">
-                <video id="videos-main" playsInline autoPlay controls></video>
+        <main class="main-body">
+            <div class="sdp-container">
+                <textarea class="sdp" id="sdp-1"></textarea>
             </div>
-            <textarea class="sdp" id="sdp-1"></textarea>
-            <div class="buttons-container">
-                <button id="button-sdpO">Offer</button>
-                <button id="button-sdp">Stream</button>
+            <button class="offer-button" id="button-sdpO">Offer</button>
+            <div class="video-container">
+                <video id="videos-main" playsInline autoPlay></video>
             </div>
-
-        </div>
+            <div class="play-button" id="button-sdp">
+                <span class="material-icons md-18 red160">play_arrow</span>
+            </div>
+        </main>
     </div>
+
 </body>
 <script src="finalD.js"></script>
 

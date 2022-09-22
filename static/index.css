@@ -1,6 +1,7 @@
 * {
   margin: 0px;
   padding: 0px;
+  width: 100%;
   height: 100%;
 }
 
@@ -11,14 +12,98 @@
 .main-container {
   width: 100%;
   height: 100%;
-  background-color: black;
-  color: white;
+  background-color: #1c0a28;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.main-body {
+  width: 50%;
+  height: 80%;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.sdp-container {
+  width: 70%;
+  height: 8%;
+  background-color: #d9d9d9;
+  border-radius: 10px;
+}
+
+.sdp{
+  width:100%;
+  height:100%;
+  background-color: #d9d9d9;
+  border-radius: 10px;
+}
+
+.offer-button {
+  width: 15%;
+  height: 30px;
+  background-color: #150d78;
+  border-radius: 5px;
+  align: center;
+  color: white;
+  border: none;
+  font-weight: bold;
+}
+
+.offer-button:hover {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 1);
+}
+
 .video-container {
+  width: 100%;
+  height: 60%;
+  background-color: #2f2d2d;
+  border-radius: 30px;
+}
+
+#videos-main {
+  align: center;
+  height: 100%;
+  width: 100%;
+  background-color: grey;
+  border-radius: 30px;
+}
+
+.play-button {
+  width: 8%;
+  height: 8%;
+  /* background-color: orange; */
+  display: flex;
+  justify-content: center;
+  border-radius: 10px;
+  align-items: center;
+  align: center;
+}
+
+.play-button:hover {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 1);
+}
+
+.material-icons.md-18.red160 {
+  color: #800707;
+  align-items: center;
+  vertical-align: middle;
+  font-size: 40px;
+  cursor: default;
+}
+/* .main-container {
+  width: 100%;
+  height: 100%;
+  background-color: yellow;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+/* .video-container {
   width: 60%;
   height: 70%;
   color: black;
@@ -69,6 +154,11 @@
   color: black;
 }
 
+.sdp-container {
+  height: 200px;
+  width: 30%;
+}
+
 #button-sdp {
   width: 40px;
   height: 60px;
@@ -81,3 +171,4 @@
   color: white;
   background-color: red;
 }
+ */

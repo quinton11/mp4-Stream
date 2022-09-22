@@ -283,7 +283,7 @@ func (agent *Agent) StreamRTP() {
 }
 
 func (agent *Agent) StartStream() {
-	agent.Strm = NewStream()
+	agent.Strm.Playing = true
 
 	moviefile := FileCheck()
 	go func() {

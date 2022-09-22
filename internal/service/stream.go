@@ -15,10 +15,11 @@ import (
 type Stream struct {
 	Cmd      *exec.Cmd
 	Listener *net.UDPConn
+	Playing  bool
 }
 
 func NewStream() *Stream {
-	return &Stream{}
+	return &Stream{Playing: false}
 }
 
 // Plays a stream

@@ -27,6 +27,8 @@ func NewHandler() *Handler {
 	if err != nil {
 		log.Fatal(err)
 	}
+	agent.Strm = service.NewStream()
+
 	return &Handler{Agent: agent}
 }
 
@@ -179,8 +181,27 @@ func (h *Handler) Stream(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) StreamUp(w http.ResponseWriter, r *http.Request) {
-	h.Agent.StartStream()
 	JSON := make(map[string]interface{})
+
+	if h.Agent.Strm.Playing {
+		fmt.Println("Stopping Stream...")
+		err := h.Agent.StopStream()
+		if err != nil {
+			JSON["error"] = err.Error()
+		}
+
+		if err != nil {
+			JSON["error"] = err.Error()
+		}
+		JSON["streaming"] = "false"
+		resp, err := json.Marshal(JSON)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(resp)
+		return
+	}
+	h.Agent.StartStream()
 	JSON["streaming"] = "true"
 	resp, err := json.Marshal(JSON)
 	if err != nil {

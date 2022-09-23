@@ -183,6 +183,13 @@ func (h *Handler) Stream(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) StreamUp(w http.ResponseWriter, r *http.Request) {
 	JSON := make(map[string]interface{})
 
+	//Start Listeners if closed
+	if h.Agent.Strm.Listener == nil {
+		err := h.Agent.Strm.StartUdp(5004)
+		if err != nil {
+			JSON["error"] = err.Error()
+		}
+	}
 	if h.Agent.Strm.Playing {
 		fmt.Println("Stopping Stream...")
 		err := h.Agent.StopStream()
@@ -194,15 +201,13 @@ func (h *Handler) StreamUp(w http.ResponseWriter, r *http.Request) {
 			JSON["error"] = err.Error()
 		}
 		JSON["streaming"] = "false"
-		resp, err := json.Marshal(JSON)
-		if err != nil {
-			panic(err)
-		}
-		w.Write(resp)
-		return
+
+	} else {
+		//Start stream if not started
+		h.Agent.StartStream()
+		JSON["streaming"] = "true"
 	}
-	h.Agent.StartStream()
-	JSON["streaming"] = "true"
+
 	resp, err := json.Marshal(JSON)
 	if err != nil {
 		panic(err)

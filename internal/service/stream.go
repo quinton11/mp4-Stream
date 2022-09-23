@@ -22,24 +22,31 @@ func NewStream() *Stream {
 	return &Stream{Playing: false}
 }
 
-// Plays a stream
-func (s *Stream) Play(movieFile string, track *webrtc.TrackLocalStaticRTP) error {
+// Start udp connection
+func (s *Stream) StartUdp(port int) error {
 	//start udp listeners
-	adpAddr := net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 5004}
+	adpAddr := net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: port}
 	udpconn, err := net.ListenUDP("udp", &adpAddr)
 	if err != nil {
 		fmt.Println(err)
-		panic(err)
+		return err
+	}
+	s.Listener = udpconn
+	return nil
+}
+
+// Close Udp connection
+func (s *Stream) CloseUdp() error {
+	err := s.Listener.Close()
+	if err != nil {
+		return err
 	}
 
-	defer func() {
-		errC := udpconn.Close()
-		if errC != nil {
-			panic(errC)
-		}
-	}()
-	//start ffmpeg streamers
+	return nil
+}
 
+// Plays a stream
+func (s *Stream) Play(movieFile string, track *webrtc.TrackLocalStaticRTP) error {
 	//Start ffmpeg process to output to RTP
 
 	buf := bytes.NewBuffer(nil)
@@ -52,16 +59,18 @@ func (s *Stream) Play(movieFile string, track *webrtc.TrackLocalStaticRTP) error
 		WithOutput(buf, os.Stdout).
 		Compile()
 
-	err = cmd.Start()
+	err := cmd.Start()
+
 	if err != nil {
 		fmt.Println("Error starting stream.")
 		fmt.Println(err)
+		return err
 	}
 
 	//store cmd.exe controller in Stream object
 	s.Cmd = cmd
 	//store udp listener in Streamobject
-	s.Listener = udpconn
+
 	//Start reading from udp port and writing to
 	//stream from RTP connection to webrtc
 	inRTPpack := make([]byte, 1600)
@@ -84,25 +93,13 @@ func (s *Stream) Play(movieFile string, track *webrtc.TrackLocalStaticRTP) error
 
 // Stops a stream
 func (s *Stream) Stop() error {
-
+	s.Playing = false
 	//using *exec.cmd stop stream manually
 	err := s.Cmd.Process.Kill()
+	//err := s.Cmd.Process.Signal(syscall.SIGTERM)
 	if err != nil {
 		fmt.Println("Error in killing process")
 		panic(err)
 	}
 	return nil
 }
-
-/*
-	On stream request, a stream object is created
-	containing the compiled cmd.exe object which controls
-	the process.
-	When the stream object is created,its stored in the agent object
-	which made the request.
-	The stream is then started
-
-	Then user can also stop stream via an endpoint to which the agent
-	object can also control where a cmd.Kill process is called on the
-	playingstream
-*/

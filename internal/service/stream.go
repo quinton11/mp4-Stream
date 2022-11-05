@@ -51,8 +51,6 @@ func (s *Stream) Play(movieFile string, track *webrtc.TrackLocalStaticRTP) error
 
 	buf := bytes.NewBuffer(nil)
 	inputVid := ffmpeg.Input(movieFile).Video()
-	/* inputAud := ffmpeg.Input(dir+filename).Audio().Output("rtp://127.0.0.1:5006?pkt_size=1200",
-	ffmpeg.KwArgs{"acodec": "copy", "f": "rtp"}) */
 	cmd := inputVid.
 		Output("rtp://127.0.0.1:5004?pkt_size=1200",
 			ffmpeg.KwArgs{"c:v": "libx264", "f": "rtp", "g": "10", "tune": "zerolatency", "r": "24", "pix_fmt": "yuv420p", "filter:v": "setpts=2.0*PTS"}).
@@ -87,7 +85,7 @@ func (s *Stream) Play(movieFile string, track *webrtc.TrackLocalStaticRTP) error
 			break
 		}
 	}
-	//webrtc track
+
 	return nil
 }
 
@@ -96,10 +94,9 @@ func (s *Stream) Stop() error {
 	s.Playing = false
 	//using *exec.cmd stop stream manually
 	err := s.Cmd.Process.Kill()
-	//err := s.Cmd.Process.Signal(syscall.SIGTERM)
 	if err != nil {
 		fmt.Println("Error in killing process")
-		panic(err)
+		return err
 	}
 	return nil
 }

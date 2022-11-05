@@ -3,9 +3,11 @@ module mp4stream
 go 1.19
 
 require (
+	github.com/fatih/color v1.13.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/pion/webrtc/v3 v3.1.43
+	github.com/rs/cors v1.8.2
 	github.com/u2takey/ffmpeg-go v0.4.1
 )
 
@@ -13,6 +15,8 @@ require (
 	github.com/aws/aws-sdk-go v1.44.89 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pion/datachannel v1.5.2 // indirect
 	github.com/pion/dtls/v2 v2.1.5 // indirect
 	github.com/pion/ice/v2 v2.2.7 // indirect

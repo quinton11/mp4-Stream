@@ -1,13 +1,13 @@
 //Creating web socket
-let ws = new WebSocket("ws://localhost:3000"); //connection url
+//let ws = new WebSocket("ws://localhost:3000"); //connection url
 
 let peerconnection;
 let remotestream = new MediaStream();
 //A check if websocket is open
-ws.onopen = () => {
+/* ws.onopen = () => {
   alert("Socket Connected!");
 };
-
+ */
 //STUN servers for configuring our peer connection
 const options = {
   iceServers: [
@@ -75,7 +75,7 @@ peerconnection.oniceconnectionstatechange = (event) => {
 peerconnection.addTransceiver("video", { direction: "recvonly" });
 
 //when we receive response from websocket
-ws.onmessage = (event) => {
+/* ws.onmessage = (event) => {
   let answer = JSON.parse(event.data);
 
   //Check if answer was received
@@ -89,7 +89,7 @@ ws.onmessage = (event) => {
     console.log("Peer ICE candidates: " + JSON.stringify(answer));
     //peerconnection.addIceCandidate(answer);
   }
-};
+}; */
 
 //creating Starting offer
 //stored in textarea
@@ -101,7 +101,7 @@ peerconnection.createOffer({ iceRestart: true }).then((offer) => {
 });
 
 let triggerStream = async () => {
-  const url = "http://localhost:3000/streamupdate";
+  const url = "http://localhost:3000/streamup";
 
   let response = await fetch(url, {
     method: "POST",

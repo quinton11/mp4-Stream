@@ -113,10 +113,10 @@ func (agent *Agent) InitProcess() error {
 		if candidate != nil {
 			fmt.Printf("Ice candidate %v", candidate)
 
-			errC := agent.Ws.WriteJSON(candidate)
+			/* errC := agent.Ws.WriteJSON(candidate)
 			if errC != nil {
 				panic(errC)
-			}
+			} */
 			//agent.Ws.WriteJSON(agent.Pconnect.CurrentLocalDescription())
 			//go agent.Ws.ReadJSON(agent.Pconnect.RemoteDescription())
 
@@ -175,6 +175,7 @@ func (agent *Agent) StreamTrack() {
 	//using exec
 	command := "ffmpeg"
 	args := []string{
+		"-re",
 		"-i",
 		movieFile,
 		"-c:v",

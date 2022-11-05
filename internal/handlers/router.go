@@ -46,6 +46,7 @@ func (h *Handler) Parse(input []byte) (map[string]interface{}, bool) {
 	return JSON, false
 }
 
+// Web Socket signalling
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	//create websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -150,8 +151,8 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	//gather ICE candidates
-	//gcomplete := webrtc.GatheringCompletePromise(h.Agent.Pconnect)
 	//Set answer as local SDP description
 	h.Agent.Pconnect.SetLocalDescription(answer)
 	fmt.Println(answer)
@@ -164,20 +165,6 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(ans)
-	//fmt.Fprintf(w, "Signalling, remote answer...")
-}
-
-func (h *Handler) Stream(w http.ResponseWriter, r *http.Request) {
-	go func() {
-		h.Agent.StreamRTP()
-	}()
-	JSON := make(map[string]interface{})
-	JSON["streaming"] = "true"
-	resp, err := json.Marshal(JSON)
-	if err != nil {
-		panic(err)
-	}
-	w.Write(resp)
 }
 
 func (h *Handler) StreamUp(w http.ResponseWriter, r *http.Request) {

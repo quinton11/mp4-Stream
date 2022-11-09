@@ -134,7 +134,7 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	//d.DisallowUnknownFields()
 	d.Decode(&JSON)
 	//print out data
-	fmt.Println(JSON)
+	//fmt.Println(JSON)
 	b, err := json.Marshal(JSON)
 	if err != nil {
 		fmt.Println("Unmarshalling error")
@@ -155,12 +155,13 @@ func (h *Handler) Signal(w http.ResponseWriter, r *http.Request) {
 	//gather ICE candidates
 	//Set answer as local SDP description
 	h.Agent.Pconnect.SetLocalDescription(answer)
-	fmt.Println(answer)
+	//fmt.Println(answer)
 	<-h.Agent.Icegathered
 	answer = *h.Agent.Pconnect.LocalDescription()
 	ans, err := json.Marshal(answer)
 	if err != nil {
 		fmt.Println(err)
+		panic(err)
 	}
 
 	w.WriteHeader(http.StatusOK)

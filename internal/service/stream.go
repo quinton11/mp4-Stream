@@ -16,10 +16,12 @@ type Stream struct {
 	Cmd      *exec.Cmd
 	Listener *net.UDPConn
 	Playing  bool
+	Movie    string
 }
 
-func NewStream() *Stream {
-	return &Stream{Playing: false}
+func NewStream(path string) *Stream {
+	//fmt.Println("New Stream", path)
+	return &Stream{Playing: false, Movie: path}
 }
 
 // Start udp connection

@@ -285,8 +285,13 @@ func (agent *Agent) StreamRTP() {
 
 func (agent *Agent) StartStream() {
 	agent.Strm.Playing = true
+	var moviefile string
 
-	moviefile := FileCheck()
+	if agent.Strm.Movie == "" {
+		moviefile = FileCheck()
+	} else {
+		moviefile = agent.Strm.Movie
+	}
 	go func() {
 		err := agent.Strm.Play(moviefile, agent.RTPTrack)
 		if err != nil {

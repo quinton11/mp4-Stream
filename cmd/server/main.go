@@ -10,7 +10,7 @@ func main() {
 
 	//create router instance
 	router := mux.NewRouter()
-	server := server.NewServer(router)
+	server := server.NewServer(router, "")
 
 	server.Listen()
 

@@ -17,10 +17,10 @@ type Server struct {
 	Handler *handler.Handler
 }
 
-func NewServer(router *mux.Router) *Server {
+func NewServer(router *mux.Router, path string) *Server {
 	var Server Server
 	Server.Router = router
-	Server.Handler = handler.NewHandler()
+	Server.Handler = handler.NewHandler(path)
 	return &Server
 }
 

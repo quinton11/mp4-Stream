@@ -22,12 +22,12 @@ type Handler struct {
 	Ws    *websocket.Conn
 }
 
-func NewHandler() *Handler {
+func NewHandler(path string) *Handler {
 	agent, err := service.NewAgent()
 	if err != nil {
 		log.Fatal(err)
 	}
-	agent.Strm = service.NewStream()
+	agent.Strm = service.NewStream(path)
 
 	return &Handler{Agent: agent}
 }
